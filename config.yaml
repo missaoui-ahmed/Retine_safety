@@ -1,0 +1,110 @@
+# MedVision Configuration File
+# This system is for research and educational purposes only, not for clinical use.
+
+# Data Configuration
+data:
+  # APTOS 2019 Diabetic Retinopathy Dataset
+  aptos_train_csv: "data/train_1.csv"
+  aptos_train_images: "data/train_images/train_images"
+  aptos_test_csv: "data/test.csv"
+  aptos_test_images: "data/test_images/test_images"
+
+  # Preprocessing for retinal images
+  image_size: 512
+  crop_margin: 0.05
+  use_clahe: true
+  clahe_clip_limit: 2.0
+  clahe_tile_size: 8
+  remove_hair: false
+  invert_mammogram: false
+
+  # Augmentation
+  augmentation:
+    horizontal_flip: 0.5
+    vertical_flip: 0.5
+    rotation_limit: 20
+    brightness_limit: 0.2
+    contrast_limit: 0.2
+    gaussian_noise: 0.01
+
+  # Split
+  train_val_split: 0.2
+  random_seed: 42
+
+# Model Configuration
+model:
+  architecture: "resnet50" # Options: resnet34, resnet50, resnet101, efficientnet_b0
+  num_classes: 5 # DR grades: 0, 1, 2, 3, 4
+  pretrained: true
+  dropout: 0.3
+
+  # Loss function
+  loss_type: "weighted_ce" # Options: ce, weighted_ce, focal
+  focal_alpha: 0.25
+  focal_gamma: 2.0
+
+# Training Configuration
+training:
+  batch_size: 16
+  num_epochs: 5
+  learning_rate: 0.0001
+  weight_decay: 0.0001
+  optimizer: "adamw"
+  scheduler: "cosine"
+  warmup_epochs: 5
+
+  # Early stopping
+  patience: 10
+  min_delta: 0.001
+
+  # Checkpointing
+  checkpoint_dir: "checkpoints"
+  save_best_only: true
+  monitor_metric: "val_auc"
+
+  # Device
+  device: "auto" # auto, cuda, cpu
+  num_workers: 4
+  pin_memory: true
+
+# Evaluation Configuration
+evaluation:
+  batch_size: 16 # Reduced from 32 for 768×768 images
+  confidence_threshold: 0.5
+  patient_aggregation: "mean" # mean, max, voting
+
+  # Metrics
+  metrics:
+    - accuracy
+    - auc
+    - sensitivity
+    - specificity
+    - precision
+    - recall
+    - f1
+
+# Explainability Configuration
+explainability:
+  method: "gradcam" # gradcam, integrated_gradients
+  target_layer: "layer4" # For ResNet
+  colormap: "jet"
+  alpha: 0.4 # Overlay transparency
+
+# API Configuration
+api:
+  host: "0.0.0.0"
+  port: 8000
+  model_path: "checkpoints/best_model.pth"
+  config_path: "config.yaml"
+  max_upload_size: 10485760 # 10MB
+  allowed_extensions:
+    - jpg
+    - jpeg
+    - png
+
+# Logging
+logging:
+  level: "INFO" # DEBUG, INFO, WARNING, ERROR
+  log_dir: "logs"
+  tensorboard: true
+  wandb: false # Set to true if using Weights & Biases

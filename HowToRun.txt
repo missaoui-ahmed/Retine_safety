@@ -1,0 +1,18 @@
+# For longer training (better accuracy on rare classes):
+python train.py --config config.yaml --dataset aptos
+
+# Evaluate on test set:
+python eval.py --config config.yaml --dataset aptos --checkpoint checkpoints/best_model.pth
+
+# Start API server for predictions:
+uvicorn api.main:app --port 8000
+
+
+
+streamlit run streamlit_app.py --logger.level=error
+
+
+
+Je vous transmets en pièce jointe le compte rendu du TP2. Je m’excuse pour le retard.
+
+
