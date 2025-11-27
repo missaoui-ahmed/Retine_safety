@@ -131,10 +131,6 @@ def preprocess_image(image_path, config):
         return None
 
 def is_likely_retinal_image(image_path):
-    """
-    Check if image looks like a retinal fundus image.
-    Returns (is_retinal, confidence, reason)
-    """
     try:
         img = cv2.imread(str(image_path))
         if img is None:
@@ -143,12 +139,12 @@ def is_likely_retinal_image(image_path):
         img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         
-        # Check 1: Circular or near-circular shape (retinal images are round)
+        # Check 1: Est que l'image est circulaire walla le 
         h, w = gray.shape
         aspect_ratio = max(h, w) / min(h, w)
         is_square_ish = aspect_ratio < 1.3
         
-        # Check 2: Dark borders (retinal images have black circular borders)
+        # Check 2: Bordure En generale tkoun Black
         border_mean = np.mean([gray[0,:].mean(), gray[-1,:].mean(), gray[:,0].mean(), gray[:,-1].mean()])
         has_dark_borders = border_mean < 50
         
@@ -156,7 +152,7 @@ def is_likely_retinal_image(image_path):
         intensity_range = gray.max() - gray.min()
         has_good_range = intensity_range > 100
         
-        # Check 4: Color presence (retinal images are typically RGB/color)
+        # Check 4: Color Variation
         color_variance = np.std([img_rgb[:,:,0].std(), img_rgb[:,:,1].std(), img_rgb[:,:,2].std()])
         is_colored = color_variance > 5  # Has color variation
         

@@ -1,11 +1,3 @@
-"""
-Training script for MedVision.
-Usage example:
-    python train.py --config config.yaml
-
-This system is for research and educational purposes only, not for clinical use.
-"""
-
 import os
 import yaml
 import argparse
@@ -21,7 +13,7 @@ from tqdm import tqdm
 import logging
 
 from src.data import (
-    APTOSDataset, ISICDataset, BreastCancerDataset, create_breast_cancer_datasets,
+    APTOSDataset, ISICDataset,
     get_train_transforms, get_val_transforms, create_dataloader, create_train_val_split
 )
 from src.models.classifier import Classifier, get_loss_function
@@ -32,7 +24,7 @@ from src.utils.io import save_checkpoint
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--config', type=str, default='config.yaml')
-    parser.add_argument('--dataset', type=str, choices=['aptos', 'isic', 'breast_cancer'], default='aptos')
+    parser.add_argument('--dataset', type=str, choices=['aptos', 'isic'], default='aptos')
     parser.add_argument('--resume', type=str, default=None)
     return parser.parse_args()
 
@@ -120,13 +112,7 @@ def main():
     logger.info(f'Using device: {device}')
 
     # Dataset selection
-    if args.dataset == 'breast_cancer':
-        # Use the breast cancer dataset
-        train_transform = get_train_transforms(cfg['data']['image_size'])
-        val_transform = get_val_transforms(cfg['data']['image_size'])
-        train_ds, val_ds = create_breast_cancer_datasets(cfg, train_transform, val_transform)
-        logger.info(f'Loaded breast cancer dataset: {len(train_ds)} train, {len(val_ds)} val')
-    elif args.dataset == 'aptos':
+    if args.dataset == 'aptos':
         csv_path = cfg['data']['aptos_train_csv']
         image_dir = cfg['data']['aptos_train_images']
         dataset = APTOSDataset(csv_path, image_dir, transform=get_train_transforms(cfg['data']['image_size']), preprocessing_config={
@@ -139,7 +125,7 @@ def main():
         })
         # Train/val split
         train_ds, val_ds = create_train_val_split(dataset, val_size=cfg['data'].get('train_val_split', 0.2), random_state=cfg['data'].get('random_seed', 42))
-    else:
+    elif args.dataset == 'isic':
         csv_path = cfg['data']['isic_train_csv']
         image_dir = cfg['data']['isic_train_images']
         dataset = ISICDataset(csv_path, image_dir, transform=get_train_transforms(cfg['data']['image_size']), preprocessing_config={
